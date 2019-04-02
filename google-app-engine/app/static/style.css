@@ -1,9 +1,17 @@
 body {
-    background-color: #fff;
+    background-color: #FBEEC1;
+	
+}
+* {
+	font-family: 'Merriweather', serif;
 }
 
 .no-display {
     display: none;
+}
+
+button {
+  cursor:pointer;
 }
 
 .center {
@@ -17,6 +25,8 @@ body {
 
 .title {
     font-size: 30px;
+	font-weight:400i;
+	font-style: italic;
     margin-top: 1em;
     margin-bottom: 1em;
     color: #262626;
@@ -27,7 +37,7 @@ body {
 }
 
 .analyze {
-    margin-top: 5em;
+    margin-top: 0.5em;
 }
 
 .upload-label {
@@ -38,7 +48,11 @@ body {
 .result-label {
     margin-top: 0.5em;
     padding: 10px;
-    font-size: 13px;
+    font-size: 24px;
+}
+.credit {
+	padding-top:10px;
+	font-size: 12px;
 }
 
 button.choose-file-button {
@@ -46,17 +60,17 @@ button.choose-file-button {
   height: 40px;
   border-radius: 2px;
   background-color: #ffffff;
-  border: solid 1px #7052CB;
+  border: solid 1px #bc986a;
   font-size: 13px;
-  color: #7052CB;
+  color: #bc986a;
 }
 
 button.analyze-button {
     width: 200px;
     height: 40px;
-    border: solid 1px #7052CB;
+    border: solid 1px #bc986a;
     border-radius: 2px;
-    background-color: #7052CB;
+    background-color: #bc986a;
     font-size: 13px;
     color: #ffffff;
 }
