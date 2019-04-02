@@ -8,9 +8,10 @@ from io import BytesIO
 from fastai import *
 from fastai.vision import *
 
-model_file_url = 'https://drive.google.com/uc?export=download&id=1SnyyyepPXP-XZjMW0jk6bL6DsFKm7HDO'
-model_file_name = 'stage-3-256-rn50'
-classes = ['affenpinscher',
+export_file_url = 'https://drive.google.com/uc?export=download&id=1NIXMoWkTThy38We-GpHvI5dAVtiqvfYd'
+export_file_name = 'dogs.pkl'
+classes = [
+'affenpinscher',
  'afghan_hound',
  'african_hunting_dog',
  'airedale',
@@ -144,12 +145,17 @@ async def download_file(url, dest):
             with open(dest, 'wb') as f: f.write(data)
 
 async def setup_learner():
-    await download_file(model_file_url, path/'models'/f'{model_file_name}.pth')
-    data_bunch = ImageDataBunch.single_from_classes(path, classes,
-        ds_tfms=get_transforms(), size=256).normalize(imagenet_stats)
-    learn = cnn_learner(data_bunch, models.resnet50, pretrained=False)
-    learn.load(model_file_name)
-    return learn
+    await download_file(export_file_url, path/export_file_name)
+    try:
+        learn = load_learner(path, export_file_name).to_fp16()
+        return learn
+    except RuntimeError as e:
+        if len(e.args) > 0 and 'CPU-only machine' in e.args[0]:
+            print(e)
+            message = "\n\nThis model was trained with an old version of fastai and will not work in a CPU environment.\n\nPlease update the fastai library in your training environment and export your model again.\n\nSee instructions for 'Returning to work' at https://course.fast.ai."
+            raise RuntimeError(message)
+        else:
+            raise
 
 loop = asyncio.get_event_loop()
 tasks = [asyncio.ensure_future(setup_learner())]
@@ -159,15 +165,15 @@ loop.close()
 @app.route('/')
 def index(request):
     html = path/'view'/'index.html'
-    return HTMLResponse(html.open().read())
+    return HTMLResponse(html.open(encoding="utf8").read())
 
 @app.route('/analyze', methods=['POST'])
 async def analyze(request):
     data = await request.form()
     img_bytes = await (data['file'].read())
     img = open_image(BytesIO(img_bytes))
-    return JSONResponse({'result': learn.predict(img)[0]})
+    prediction = learn.predict(img)[0]
+    return JSONResponse({'result': str(prediction)})
 
 if __name__ == '__main__':
     if 'serve' in sys.argv: uvicorn.run(app, host='0.0.0.0', port=8080)
-
